@@ -1,0 +1,55 @@
+server:
+  port: 18083
+
+spring:
+  application:
+    name: audit-ingest-service
+  autoconfigure:
+    exclude:
+      - dev.waqas.audit.autoconfigure.AuditAutoConfiguration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+app:
+  audit:
+    ingest:
+      queue: audit-events
+      exchange: app-audit-exchange
+      routing-key: audit-event
+      listener:
+        concurrency: 2
+        batch-maximum-messages: 100
+        batch-buffer-limit-mb: 1
+        batch-timeout-seconds: 30
+        # 0 = restart container immediately after stop (handy locally); production: e.g. 60000
+        circuit-breaker-trip-duration-ms: 0
+      forward:
+        enabled: false
+        url: ""
+        api-key-header: X-Api-Key
+        api-key: ""
+
+logging:
+  level:
+    root: INFO
+    dev.waqas.audit: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+app:
+  audit:
+    ingest:
+      listener:
+        circuit-breaker-trip-duration-ms: 60000

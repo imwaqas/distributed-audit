@@ -1,0 +1,4 @@
+rootProject.name = 'distributed-audit'
+
+include 'audit-spring-boot-starter'
+include 'audit-ingest-service'

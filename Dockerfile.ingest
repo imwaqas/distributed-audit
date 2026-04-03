@@ -1,0 +1,15 @@
+# Build stage (requires network for Gradle/Maven Central)
+FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR /src
+COPY gradle gradle
+COPY gradlew gradlew.bat gradle.properties build.gradle settings.gradle ./
+COPY audit-spring-boot-starter audit-spring-boot-starter
+COPY audit-ingest-service audit-ingest-service
+RUN chmod +x gradlew && ./gradlew :audit-ingest-service:bootJar --no-daemon
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /src/audit-ingest-service/build/libs/ /libs/
+RUN mv /libs/audit-ingest-service-*.jar /app/app.jar && rm -rf /libs
+EXPOSE 18083
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

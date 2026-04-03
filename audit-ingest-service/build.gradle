@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+}
+
+description = 'Consumes audit queue and forwards via AuditLogIngestor implementations (logging, HTTP, …)'
+
+dependencies {
+    implementation project(':audit-spring-boot-starter')
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('bootJar') {
+    archiveBaseName = 'audit-ingest-service'
+}
+
+tasks.named('jar') {
+    enabled = false
+}
